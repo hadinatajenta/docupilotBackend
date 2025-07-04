@@ -3,6 +3,7 @@
 Go backend boilerplate with clean architecture vibes. Structured, scalable, gak ribet.
 
 ## 🧱 Project Struc
+```
 ├── app # Wiring & provider injection
 ├── core # Core logic: config binding, contracts, env
 ├── env # External config (YAML, etc)
@@ -10,7 +11,7 @@ Go backend boilerplate with clean architecture vibes. Structured, scalable, gak 
 ├── shared # Common utils & response handling
 ├── src # Feature modules / domain logic
 ├── main.go # Entry point
-
+```
 ## 🧪 Tech Stack
 
 - Golang
