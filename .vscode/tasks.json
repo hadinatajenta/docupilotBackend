@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Inject package using gopkg",
+      "type": "shell",
+      "command": "find . -type f -name '*.go' ! -name 'wire.go' ! -name 'wire_gen.go' -exec gopkg {} \\;",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ]
+}
