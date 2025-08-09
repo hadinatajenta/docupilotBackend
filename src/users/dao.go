@@ -10,6 +10,10 @@ type User struct {
 	AvatarURL   string
 	CreatedAt   time.Time
 	LastLogin   time.Time
-	Role        string
-	Password    string
+	Role        string `json:"roles" gorm:"column:roles"`
+	Password    string `json:"-"`
+}
+
+func (User) TableName() string {
+	return "users"
 }

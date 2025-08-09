@@ -99,3 +99,43 @@ func (h *Handler) Logout(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Logout Success", nil)
 
 }
+
+func (h *Handler) GetDetailByFirebaseUID(c *gin.Context) {
+	firebaseUid := c.GetString("user_id")
+	if firebaseUid == "" {
+		response.Error(c, http.StatusBadRequest, "tidak menemukan user_id", nil)
+		return
+	}
+	user, err := h.srv.GetByFirebaseUID(c, firebaseUid)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, utils.InternalServerErr, err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Success get user detail", user)
+}
+
+func (h *Handler) UpdateUserProfile(ctx *gin.Context) {
+	var req UpdateProfile
+	userId := ctx.GetString("user_id")
+
+	err := ctx.ShouldBindJSON(&req)
+	if err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			msg := ve[0].Field() + utils.IsRequired
+			response.Error(ctx, http.StatusBadRequest, utils.InvalidRequest, msg)
+			return
+		}
+		response.Error(ctx, http.StatusBadRequest, utils.InvalidRequest, err)
+		return
+	}
+
+	err = h.srv.UpdateProfile(ctx, userId)
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, utils.InternalServerErr, err)
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "berhasil update profile", nil)
+}

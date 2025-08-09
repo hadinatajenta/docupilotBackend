@@ -15,8 +15,6 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Name         string `json:"name"`
-	Email        string `json:"email"`
 	Token        string `json:"token"`
 	RefreshToken string `json:"refresh_token"`
 }
@@ -31,4 +29,10 @@ type RefreshToken struct {
 
 type TokenReq struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+type UpdateProfile struct {
+	Name     string `json:"name" gorm:"column:name" binding:"required"`
+	Email    string `json:"email" gorm:"column:email" binding:"required"`
+	Password string `json:"password" gorm:"column:password" binding:"required"`
 }

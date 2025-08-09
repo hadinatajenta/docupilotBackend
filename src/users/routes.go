@@ -10,7 +10,10 @@ import (
 func RegisUserRoute(r *gin.RouterGroup, h *Handler) {
 	authClient := firebase.MustInit()
 	auth := r.Group("/auth")
-	auth.POST("/sync", middleware.FirebaseAuthMiddleware(authClient), h.SyncUser)
-	auth.POST("/login", h.Login)
-	auth.POST("/refresh", middleware.AuthMiddleware(), h.RefreshToken)
+	{
+		auth.POST("/sync", middleware.FirebaseAuthMiddleware(authClient), h.SyncUser)
+		auth.POST("/login", h.Login)
+		auth.POST("/refresh", middleware.AuthMiddleware(), h.RefreshToken)
+		auth.GET("/me", middleware.AuthMiddleware(), h.GetDetailByFirebaseUID)
+	}
 }

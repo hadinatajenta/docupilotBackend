@@ -1,6 +1,7 @@
 package app
 
 import (
+	"database/sql"
 	"gobackend/core/configuration"
 	"gobackend/infra/cache"
 	"gobackend/infra/db"
@@ -13,9 +14,10 @@ import (
 )
 
 type Dependencies struct {
-	DB       *gorm.DB
-	Redis    *redis.Client
-	RabbitMQ *amqp.Connection
+	DB        *gorm.DB
+	Redis     *redis.Client
+	RabbitMQ  *amqp.Connection
+	SqlNative *sql.DB
 }
 
 func InitDependencies(cfg configuration.Config) *Dependencies {

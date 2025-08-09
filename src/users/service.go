@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gobackend/shared/utils"
 	"time"
 
@@ -80,7 +81,7 @@ func (s *userService) Login(ctx context.Context, email, password string) (*Login
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
-		return nil, errors.New("incorrect password")
+		return nil, errors.New("incorrect email or password")
 	}
 
 	tx := s.db.Begin()
@@ -100,7 +101,7 @@ func (s *userService) Login(ctx context.Context, email, password string) (*Login
 		return nil, err
 	}
 
-	accessToken, err := utils.GenerateJWT(user.ID)
+	accessToken, err := utils.GenerateJWT(user.FirebaseUID)
 	if err != nil {
 		return nil, err
 	}
@@ -118,8 +119,6 @@ func (s *userService) Login(ctx context.Context, email, password string) (*Login
 
 	response := &LoginResponse{
 		Token:        accessToken,
-		Name:         user.Name,
-		Email:        user.Email,
 		RefreshToken: refreshToken,
 	}
 
@@ -161,5 +160,28 @@ func (s *userService) Logout(ctx context.Context, refreshToken string) error {
 	if err := tx.Commit().Error; err != nil {
 		return err
 	}
+	return nil
+}
+
+func (s *userService) GetByFirebaseUID(ctx context.Context, firebaseUID string) (*User, error) {
+	user, err := s.repo.GetByFirebaseUID(ctx, firebaseUID)
+	fmt.Println("firebase uid === ", firebaseUID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (s *userService) UpdateProfile(ctx context.Context, id string) error {
+	if id == "" {
+		return fmt.Errorf("unauthorize")
+	}
+
+	if err := s.repo.UpdateProfile(ctx, id); err != nil {
+		return err
+	}
+
 	return nil
 }

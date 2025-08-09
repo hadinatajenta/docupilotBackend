@@ -15,6 +15,7 @@ type URepository interface {
 	StoreRefreshToken(ctx context.Context, tx *gorm.DB, userId, refreshToken string, expAt time.Time) error
 	FindRefreshToken(ctx context.Context, refreshToken string) (*RefreshToken, error)
 	DeleteRefreshToken(ctx context.Context, tx *gorm.DB, refreshToken string) error
+	// UpdateProfile(ctx context.Context, id string) error
 }
 
 type UService interface {
@@ -22,4 +23,6 @@ type UService interface {
 	Login(ctx context.Context, email, password string) (*LoginResponse, error)
 	RefreshToken(ctx context.Context, refreshToken string) (string, error)
 	Logout(ctx context.Context, refreshToken string) error
+	GetByFirebaseUID(ctx context.Context, firebaseUID string) (*User, error)
+	// UpdateProfile(ctx context.Context, id string) error
 }
