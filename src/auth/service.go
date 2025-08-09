@@ -55,7 +55,7 @@ func (s *authService) Login(ctx context.Context, email, password string) (*Login
 		return nil, err
 	}
 
-	accessToken, err := utils.GenerateJWT(user.FirebaseUID)
+	accessToken, err := utils.GenerateJWT(user.ID)
 	if err != nil {
 		return nil, err
 	}

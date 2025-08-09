@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"gobackend/shared/response"
 	"gobackend/src/roles"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 func PermissionMiddleware(roleRepo roles.Repository, requiredPerm string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID := c.GetString("user_id")
+		fmt.Println("User ID from context:", userID)
 		if userID == "" {
 			response.Error(c, http.StatusUnauthorized, "unauthorized", nil)
 			c.Abort()
@@ -31,7 +33,6 @@ func PermissionMiddleware(roleRepo roles.Repository, requiredPerm string) gin.Ha
 				break
 			}
 		}
-
 		if !hasPermission {
 			response.Error(c, http.StatusForbidden, "forbidden", nil)
 			c.Abort()

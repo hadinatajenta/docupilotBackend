@@ -13,7 +13,7 @@ func RegisterUserRoutes(r *gin.RouterGroup, h *Handler, roleRepo roles.Repositor
 	{
 		usersGroup.GET("/me",
 			middleware.AuthMiddleware(),
-			middleware.PermissionMiddleware(roleRepo, "view_profile"),
+			middleware.PermissionMiddleware(roleRepo, "view_self_profile"),
 			h.GetDetailByFirebaseUID,
 		)
 	}

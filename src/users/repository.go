@@ -15,9 +15,9 @@ func NewUserRepository(db *gorm.DB) URepository {
 	return &userRepo{db}
 }
 
-func (r *userRepo) GetByFirebaseUID(ctx context.Context, uid string) (*User, error) {
+func (r *userRepo) GetByUserID(ctx context.Context, uid string) (*User, error) {
 	var user User
-	err := r.db.WithContext(ctx).Where("firebase_uid = ?", uid).First(&user).Error
+	err := r.db.WithContext(ctx).Where("id = ?", uid).First(&user).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}

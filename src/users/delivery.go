@@ -38,7 +38,7 @@ func (h *Handler) GetDetailByFirebaseUID(c *gin.Context) {
 		return
 	}
 
-	user, err := h.srv.GetByFirebaseUID(c, firebaseUid)
+	user, err := h.srv.GetByUserID(c, firebaseUid)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, utils.InternalServerErr, err)
 		return

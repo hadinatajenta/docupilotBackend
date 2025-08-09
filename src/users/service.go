@@ -18,7 +18,7 @@ func NewUserService(repo URepository, db *gorm.DB) UService {
 }
 
 func (s *userService) SyncFirebaseUser(ctx context.Context, uid, email, name, avatarURL string) (*User, error) {
-	user, err := s.repo.GetByFirebaseUID(ctx, uid)
+	user, err := s.repo.GetByUserID(ctx, uid)
 	if err != nil {
 		return nil, err
 	}
@@ -61,8 +61,8 @@ func (s *userService) SyncFirebaseUser(ctx context.Context, uid, email, name, av
 	return newUser, tx.Commit().Error
 }
 
-func (s *userService) GetByFirebaseUID(ctx context.Context, firebaseUID string) (*User, error) {
-	return s.repo.GetByFirebaseUID(ctx, firebaseUID)
+func (s *userService) GetByUserID(ctx context.Context, firebaseUID string) (*User, error) {
+	return s.repo.GetByUserID(ctx, firebaseUID)
 }
 
 // nanti implementasi UpdateProfile di sini
