@@ -1,19 +1,17 @@
 package users
 
 import (
-	"gobackend/core/firebase"
 	"gobackend/core/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisUserRoute(r *gin.RouterGroup, h *Handler) {
-	authClient := firebase.MustInit()
-	auth := r.Group("/auth")
+func RegisterUserRoutes(r *gin.RouterGroup, h *Handler) {
+
+	usersGroup := r.Group("/users")
 	{
-		auth.POST("/sync", middleware.FirebaseAuthMiddleware(authClient), h.SyncUser)
-		auth.POST("/login", h.Login)
-		auth.POST("/refresh", middleware.AuthMiddleware(), h.RefreshToken)
-		auth.GET("/me", middleware.AuthMiddleware(), h.GetDetailByFirebaseUID)
+		usersGroup.GET("/me", middleware.AuthMiddleware(), h.GetDetailByFirebaseUID)
+		// usersGroup.POST("/sync", middleware.FirebaseAuthMiddleware(authClient), h.SyncUser)
+		// usersGroup.PUT("/profile", middleware.AuthMiddleware(), h.UpdateUserProfile)
 	}
 }

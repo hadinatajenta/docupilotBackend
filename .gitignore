@@ -12,6 +12,10 @@ Thumbs.db
 
 # Vendor (kalau nggak dipush)
 vendor/
+main
+firebase.json
+build-errors.log
+.env
 
 # Dependency files (kalau kamu rebuild dari go mod aja)
 go.sum
