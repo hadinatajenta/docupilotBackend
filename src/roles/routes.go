@@ -12,8 +12,14 @@ func RegisRoleRoutes(router *gin.RouterGroup, handler *Handler, repo permission.
 	{
 		role.POST("/create",
 			middleware.AuthMiddleware(),
-			permission.PermissionMiddleware(repo, "add_roles"),
+			// permission.PermissionMiddleware(repo, "add_roles"),
 			handler.CreateRole,
+		)
+
+		role.POST("/:id/permissions",
+			middleware.AuthMiddleware(),
+			// permission.PermissionMiddleware(repo, "assign_permissions"),
+			handler.AssignPermissions,
 		)
 	}
 }
