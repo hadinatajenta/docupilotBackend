@@ -4,15 +4,8 @@ import "time"
 
 type Role struct {
 	ID          string `gorm:"type:uuid;primaryKey"`
-	Name        string `gorm:"size:50;unique;not null"`
-	Description string
-	CreatedAt   time.Time
-}
-
-type Permission struct {
-	ID          string `gorm:"type:uuid;primaryKey"`
-	Name        string `gorm:"size:100;unique;not null"`
-	Description string
+	Name        string `gorm:"size:50;unique;not null" binding:"required"`
+	Description string `gorm:"size:100" binding:"required"`
 	CreatedAt   time.Time
 }
 
