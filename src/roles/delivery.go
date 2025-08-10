@@ -28,3 +28,21 @@ func (h *Handler) CreateRole(ctx *gin.Context) {
 	}
 	response.Success(ctx, http.StatusCreated, " Role created successfully", nil)
 }
+
+func (h *Handler) AssignPermissions(c *gin.Context) {
+	roleID := c.Param("id")
+	var req assignPermissionsReq
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, http.StatusBadRequest, "invalid request", err)
+		return
+	}
+
+	res, err := h.srv.AssignPermissionsToRole(c, roleID, req.Permissions)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, err.Error(), err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "permissions assigned successfully", res)
+}
