@@ -1,16 +1,21 @@
-package middleware
+package permission
 
 import (
 	"fmt"
 	"gobackend/shared/response"
-	"gobackend/src/roles"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func PermissionMiddleware(roleRepo roles.Repository, requiredPerm string) gin.HandlerFunc {
+func PermissionMiddleware(roleRepo PermissionChecker, requiredPerm string) gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		if roleRepo == nil {
+			response.Error(c, http.StatusInternalServerError, "server configuration error", nil)
+			c.Abort()
+			return
+		}
 		userID := c.GetString("user_id")
 		fmt.Println("User ID from context:", userID)
 		if userID == "" {

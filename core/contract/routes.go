@@ -4,6 +4,7 @@ import (
 	"gobackend/app"
 	"gobackend/src/auth"
 	"gobackend/src/menus"
+	"gobackend/src/permission"
 	"gobackend/src/roles"
 	"gobackend/src/users"
 
@@ -13,14 +14,20 @@ import (
 func RegisterRoutes(rg *gin.RouterGroup, deps *app.Dependencies) {
 	routes := rg.Group("/v1")
 	{
+		// package permissions
+		permissionRepo := permission.NewPermissionRepository((deps.DB))
+
 		// package roles
 		roleRepo := roles.NewRoleRepository(deps.DB)
+		roleService := roles.NewRoleService(roleRepo)
+		roleHandler := roles.NewRoleHandler(roleService)
+		roles.RegisRoleRoutes(routes, roleHandler, permissionRepo)
 
 		// package users
 		userRepo := users.NewUserRepository(deps.DB)
 		userService := users.NewUserService(userRepo, deps.DB)
 		userHandler := users.NewUserHandler(userService)
-		users.RegisterUserRoutes(routes, userHandler, roleRepo)
+		users.RegisterUserRoutes(routes, userHandler, permissionRepo)
 
 		// package menus
 		menuRepo := menus.NewMenuRepository(deps.DB)

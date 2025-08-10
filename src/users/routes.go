@@ -2,18 +2,17 @@ package users
 
 import (
 	"gobackend/core/middleware"
-	"gobackend/src/roles"
+	"gobackend/src/permission"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterUserRoutes(r *gin.RouterGroup, h *Handler, roleRepo roles.Repository) {
-
+func RegisterUserRoutes(r *gin.RouterGroup, h *Handler, repo permission.PermissionChecker) {
 	usersGroup := r.Group("/users")
 	{
 		usersGroup.GET("/me",
 			middleware.AuthMiddleware(),
-			middleware.PermissionMiddleware(roleRepo, "view_self_profile"),
+			permission.PermissionMiddleware(repo, "view_self_profile"),
 			h.GetDetailByFirebaseUID,
 		)
 	}
