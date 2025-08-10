@@ -27,3 +27,7 @@ func (r *repository) GetPermissionsByUserID(ctx context.Context, userID string) 
 		Find(&perms).Error
 	return perms, err
 }
+
+func (r *repository) CreatePermission(ctx context.Context, permission *Permission) error {
+	return r.db.WithContext(ctx).Create(permission).Error
+}

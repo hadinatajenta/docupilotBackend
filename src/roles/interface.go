@@ -10,6 +10,7 @@ type Repository interface {
 	// GetAll(ctx context.Context) ([]Role, error)
 	// GetByID(ctx context.Context, id string) (*Role, error)
 	Create(ctx context.Context, role *Role) error
+	CheckRoleExist(ctx context.Context, role string) (bool, error)
 	// Update(ctx context.Context, role *Role) error
 	// Delete(ctx context.Context, id string) error
 	// AssignPermissions(ctx context.Context, roleID string, permissionIDs []string) error

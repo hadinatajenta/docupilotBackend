@@ -16,6 +16,9 @@ func RegisterRoutes(rg *gin.RouterGroup, deps *app.Dependencies) {
 	{
 		// package permissions
 		permissionRepo := permission.NewPermissionRepository((deps.DB))
+		permissionService := permission.NewPermissionService(permissionRepo)
+		permissionHandler := permission.NewPermissionHandler(permissionService)
+		permission.RegisterPermissionRoutes(routes, permissionHandler, permissionRepo)
 
 		// package roles
 		roleRepo := roles.NewRoleRepository(deps.DB)

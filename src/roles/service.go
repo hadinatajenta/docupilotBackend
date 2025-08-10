@@ -2,6 +2,7 @@ package roles
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,6 +18,16 @@ func NewRoleService(repo Repository) Service {
 
 func (s *service) CreateRole(ctx context.Context, role *Role) error {
 	uuid := uuid.New()
+
+	checkExist, err := s.repo.CheckRoleExist(ctx, role.Name)
+	if err != nil {
+		return err
+	}
+
+	if checkExist {
+		return fmt.Errorf("role %s already exists", role.Name)
+	}
+
 	roleInput := &Role{
 		ID:          uuid.String(),
 		Name:        role.Name,

@@ -28,3 +28,15 @@ func (r *roleRepo) GetRolesByUserID(ctx context.Context, userID string) ([]Role,
 func (r *roleRepo) Create(ctx context.Context, role *Role) error {
 	return r.db.WithContext(ctx).Create(role).Error
 }
+
+func (r *roleRepo) CheckRoleExist(ctx context.Context, role string) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&Role{}).
+		Where("name = ?", role).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
