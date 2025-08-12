@@ -29,6 +29,12 @@ type ErrorAPIResponse struct {
 	Errors  string `json:"errors"`
 }
 
+type ValFailed struct {
+	Status  int               `json:"status"`
+	Message string            `json:"message"`
+	Errors  []ValidationError `json:"errors"`
+}
+
 func Success(c *gin.Context, status int, message string, data any) {
 	c.JSON(status, APIResponse{
 		Status:  status,
@@ -71,9 +77,9 @@ func ErrorWithCode(c *gin.Context, status int, message string, err error, errorC
 }
 
 func ValidationFailed(c *gin.Context, message string, errors []ValidationError) {
-	c.JSON(http.StatusBadRequest, gin.H{
-		"status":  http.StatusBadRequest,
-		"message": message,
-		"errors":  errors,
+	c.JSON(http.StatusBadRequest, ValFailed{
+		Status:  http.StatusBadRequest,
+		Message: message,
+		Errors:  errors,
 	})
 }

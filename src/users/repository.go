@@ -3,10 +3,12 @@ package users
 import (
 	"context"
 	"errors"
+	"gobackend/shared/utils"
 	"gobackend/src/roles"
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type userRepo struct {
@@ -77,12 +79,42 @@ func (r *userRepo) AssignRolesToUser(ctx context.Context, userID string, roleIDs
 	panic("unimplemented")
 }
 
-func (r *userRepo) GetUsers(ctx context.Context) ([]GetUsers, error) {
-	var users []GetUsers
-	if err := r.db.WithContext(ctx).Table("users").Select("firebase_uid", "email", "name", "avatar_url", "roles::text[]", "last_login").Find(&users).Error; err != nil {
-		return nil, err
+func (r *userRepo) GetUsers(ctx context.Context, p utils.Params) ([]GetUsers, int, error) {
+	var (
+		users []GetUsers
+		total int64
+	)
+
+	q := r.db.WithContext(ctx).Table("users")
+
+	if err := q.Count(&total).Error; err != nil {
+		return nil, 0, err
 	}
-	return users, nil
+
+	sortCol := map[string]string{
+		"created_at": "created_at",
+		"email":      "email",
+		"name":       "name",
+		"last_login": "last_login",
+	}[p.Sort]
+	if sortCol == "" {
+		sortCol = "created_at"
+	}
+
+	desc := p.Order == "desc"
+
+	err := q.
+		Select(`firebase_uid, email, name, avatar_url, roles::text[] AS roles, last_login`).
+		Order(clause.OrderByColumn{Column: clause.Column{Name: sortCol}, Desc: desc}).
+		Order(clause.OrderByColumn{Column: clause.Column{Name: "id"}, Desc: false}).
+		Limit(p.Limit).
+		Offset(p.Offset).
+		Find(&users).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, int(total), nil
 }
 
 func (r *userRepo) CreateUser(ctx context.Context, user *User) error {

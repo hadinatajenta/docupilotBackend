@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"gobackend/shared/utils"
 	"gobackend/src/roles"
 	"time"
 
@@ -16,13 +17,13 @@ type URepository interface {
 	GetRolesByUserIds(ctx context.Context, ids []string) ([]*roles.Role, error)
 	AssignRolesToUser(ctx context.Context, userID string, roleIDs []string) error
 	CheckRolesExist(ctx context.Context, roleIDs []string) (bool, error)
-	GetUsers(ctx context.Context) ([]GetUsers, error)
+	GetUsers(ctx context.Context, p utils.Params) ([]GetUsers, int, error)
 	CreateUser(ctx context.Context, user *User) error
 }
 
 type UService interface {
 	GetByUserID(ctx context.Context, firebaseUID string) (*User, error)
 	AssignRolesToUser(ctx context.Context, userId string, roleIDs []string) (assignRoleRes, error)
-	GetUsers(ctx context.Context) ([]GetUsers, error)
+	GetUsers(ctx context.Context, p utils.Params) ([]GetUsers, utils.Meta, error)
 	CreateUser(ctx context.Context, req CreateUserRequest) (CreateUserResponse, error)
 }

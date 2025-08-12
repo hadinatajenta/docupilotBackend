@@ -48,34 +48,32 @@ func (h *Handler) GetDetailByFirebaseUID(c *gin.Context) {
 }
 
 func (h *Handler) GetUsers(ctx *gin.Context) {
-	u, r := h.srv.GetUsers(ctx)
-	if r != nil {
-		response.Error(ctx, http.StatusInternalServerError, "Failed to get users", r)
+	p := utils.Parse(ctx)
+	data, meta, err := h.srv.GetUsers(ctx, p)
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, "Failed to get users", err)
 		return
 	}
 
-	response.Success(ctx, http.StatusOK, "Success get users data", u)
+	response.SuccessWithMeta(ctx, http.StatusOK, "Success get users data", data, response.Meta{
+		TotalItems:  meta.TotalItems,
+		CurrentPage: meta.CurrentPage,
+		PerPage:     meta.PerPage,
+	})
 }
 
 func (h *Handler) CreateUser(c *gin.Context) {
 	var req CreateUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		if verrs, ok := err.(validator.ValidationErrors); ok {
-			out := make(map[string]string)
+			validationErrors := make([]response.ValidationError, 0, len(verrs))
 			for _, fe := range verrs {
-				field := fe.Field()
-				switch fe.Tag() {
-				case "required":
-					out[field] = "is required"
-				case "email":
-					out[field] = "must be a valid email"
-				case "min":
-					out[field] = "must be at least " + fe.Param() + " characters"
-				default:
-					out[field] = "is invalid"
-				}
+				validationErrors = append(validationErrors, response.ValidationError{
+					Field:   fe.Field(),
+					Message: utils.GetErrorMessage(fe),
+				})
 			}
-			response.Error(c, http.StatusBadRequest, utils.InvalidRequest, out)
+			response.ValidationFailed(c, utils.InternalServerErr, validationErrors)
 			return
 		}
 
