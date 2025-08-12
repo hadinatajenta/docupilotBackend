@@ -73,13 +73,13 @@ func (s *userService) GetByUserID(ctx context.Context, firebaseUID string) (*Use
 func (s *userService) AssignRolesToUser(ctx context.Context, userId string, roleIDs []string) (assignRoleRes, error) {
 	panic("unimplemented")
 }
-func (s *userService) GetUsers(ctx context.Context) ([]GetUsers, error) {
-	users, err := s.repo.GetUsers(ctx)
+func (s *userService) GetUsers(ctx context.Context, p utils.Params) ([]GetUsers, utils.Meta, error) {
+	users, total, err := s.repo.GetUsers(ctx, p)
 	if err != nil {
-		return nil, err
+		return nil, utils.Meta{}, err
 	}
-
-	return users, nil
+	meta := utils.BuildMeta(total, p.Page, p.PerPage)
+	return users, meta, nil
 }
 
 func (s *userService) CreateUser(ctx context.Context, req CreateUserRequest) (CreateUserResponse, error) {
