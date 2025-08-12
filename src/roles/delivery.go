@@ -46,3 +46,12 @@ func (h *Handler) AssignPermissions(c *gin.Context) {
 
 	response.Success(c, http.StatusOK, "permissions assigned successfully", res)
 }
+
+func (h *Handler) GetAllRoles(ctx *gin.Context) {
+	roles, err := h.srv.GetAllRoles(ctx)
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, "Failed to retrieve roles", err.Error())
+		return
+	}
+	response.Success(ctx, http.StatusOK, "Roles retrieved successfully", roles)
+}

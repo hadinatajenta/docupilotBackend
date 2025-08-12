@@ -15,5 +15,8 @@ func RegisterUserRoutes(r *gin.RouterGroup, h *Handler, repo permission.Permissi
 			permission.PermissionMiddleware(repo, "view_self_profile"),
 			h.GetDetailByFirebaseUID,
 		)
+
+		usersGroup.GET("/", middleware.AuthMiddleware(), h.GetUsers)
+		usersGroup.POST("/", middleware.AuthMiddleware(), h.CreateUser)
 	}
 }

@@ -2,6 +2,8 @@ package users
 
 import (
 	"context"
+	"errors"
+	"gobackend/src/roles"
 	"time"
 
 	"gorm.io/gorm"
@@ -40,7 +42,52 @@ func (r *userRepo) CheckEmailExist(ctx context.Context, email string) (*User, er
 	var usr User
 	err := r.db.WithContext(ctx).Where("email = ?", email).First(&usr).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return &usr, nil
+}
+
+func (r *userRepo) GetRolesByUserIds(ctx context.Context, ids []string) ([]*roles.Role, error) {
+	var roles []*roles.Role
+	err := r.db.WithContext(ctx).
+		Table("roles").
+		Select("roles.*").
+		Joins("JOIN user_roles ur ON ur.role_id = roles.id").
+		Where("ur.user_id IN ?", ids).
+		Find(&roles).Error
+	if err != nil {
+		return nil, err
+	}
+	return roles, nil
+}
+
+func (r *userRepo) CheckRolesExist(ctx context.Context, roleIDs []string) (bool, error) {
+	var count int64
+	if err := r.db.WithContext(ctx).Model(&roles.Role{}).Where("id IN ?", roleIDs).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count == int64(len(roleIDs)), nil
+
+}
+
+func (r *userRepo) AssignRolesToUser(ctx context.Context, userID string, roleIDs []string) error {
+	panic("unimplemented")
+}
+
+func (r *userRepo) GetUsers(ctx context.Context) ([]GetUsers, error) {
+	var users []GetUsers
+	if err := r.db.WithContext(ctx).Table("users").Select("firebase_uid", "email", "name", "avatar_url", "roles::text[]", "last_login").Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (r *userRepo) CreateUser(ctx context.Context, user *User) error {
+	if err := r.db.Create(user).Error; err != nil {
+		return err
+	}
+	return nil
 }

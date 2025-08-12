@@ -92,3 +92,9 @@ func (r *roleRepo) GetPermissionByIDS(ctx context.Context, ids []string) ([]GetN
 		Find(&permissions).Error
 	return permissions, err
 }
+
+func (r *roleRepo) GetAllRoles(ctx context.Context) ([]Role, error) {
+	var roles []Role
+	err := r.db.WithContext(ctx).Find(&roles).Error
+	return roles, err
+}

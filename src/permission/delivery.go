@@ -28,3 +28,24 @@ func (h *Handler) CreatePermission(ctx *gin.Context) {
 	}
 	response.Success(ctx, http.StatusCreated, "Permission created successfully", nil)
 }
+
+func (h *Handler) GetAllPermissions(ctx *gin.Context) {
+	permissions, err := h.srv.GetAllPermissions(ctx)
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, "Failed to retrieve permissions", err.Error())
+		return
+	}
+	response.Success(ctx, http.StatusOK, "Permissions retrieved successfully", permissions)
+}
+
+func (h *Handler) GetPermissionByRoleId(ctx *gin.Context) {
+	role_id := ctx.Param("role_id")
+
+	data, err := h.srv.GetPermissionByRoleId(ctx, role_id)
+	if err != nil {
+		response.Error(ctx, http.StatusInternalServerError, "failed to retrieve permissions", err)
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "Success get Permission by role_id", data)
+}

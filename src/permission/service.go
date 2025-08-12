@@ -79,3 +79,41 @@ func (s *service) CreatePermission(ctx context.Context, permission *Permission) 
 	}
 	return nil
 }
+
+func (s *service) GetAllPermissions(ctx context.Context) (PermissionResponse, error) {
+	permissions, err := s.repo.GetAllPermissions(ctx)
+	if err != nil {
+		return PermissionResponse{}, fmt.Errorf("failed to get permissions: %w", err)
+	}
+
+	resp := PermissionResponse{
+		Data: GroupPermissionsByFeature(permissions),
+	}
+	return resp, nil
+}
+
+func GroupPermissionsByFeature(perms []Permission) map[string][]Permission {
+	result := make(map[string][]Permission)
+	for _, p := range perms {
+		result[p.Feature] = append(result[p.Feature], p)
+	}
+	return result
+}
+
+func (s *service) GetPermissionByRoleId(ctx context.Context, roleId string) (GetPermissionByUidRes, error) {
+	if roleId == "" {
+		return GetPermissionByUidRes{}, fmt.Errorf("user_id cannot be null")
+	}
+
+	getPermissions, err := s.repo.GetPermissionByRoleId(ctx, roleId)
+	if err != nil {
+		return GetPermissionByUidRes{}, err
+	}
+
+	resp := GetPermissionByUidRes{
+		Role:       roleId,
+		Permission: getPermissions,
+	}
+
+	return resp, nil
+}

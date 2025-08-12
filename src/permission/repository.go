@@ -31,3 +31,25 @@ func (r *repository) GetPermissionsByUserID(ctx context.Context, userID string) 
 func (r *repository) CreatePermission(ctx context.Context, permission *Permission) error {
 	return r.db.WithContext(ctx).Create(permission).Error
 }
+
+func (r *repository) GetAllPermissions(ctx context.Context) ([]Permission, error) {
+	var perms []Permission
+	err := r.db.WithContext(ctx).Find(&perms).Error
+	return perms, err
+}
+
+func (r *repository) GetPermissionByRoleId(ctx context.Context, roleId string) ([]Permission, error) {
+	var perms []Permission
+
+	if err := r.db.
+		Table("role_permissions AS rp").
+		Select("p.id, p.name, p.description, p.feature").
+		Joins("JOIN permissions p ON rp.permission_id = p.id").
+		Where("rp.role_id = ?", roleId).
+		Scan(&perms).Error; err != nil {
+		return nil, err
+	}
+
+	return perms, nil
+
+}
