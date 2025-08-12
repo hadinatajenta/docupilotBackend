@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type Handler struct {
@@ -44,4 +45,50 @@ func (h *Handler) GetDetailByFirebaseUID(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusOK, "Success get user detail", user)
+}
+
+func (h *Handler) GetUsers(ctx *gin.Context) {
+	u, r := h.srv.GetUsers(ctx)
+	if r != nil {
+		response.Error(ctx, http.StatusInternalServerError, "Failed to get users", r)
+		return
+	}
+
+	response.Success(ctx, http.StatusOK, "Success get users data", u)
+}
+
+func (h *Handler) CreateUser(c *gin.Context) {
+	var req CreateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		if verrs, ok := err.(validator.ValidationErrors); ok {
+			out := make(map[string]string)
+			for _, fe := range verrs {
+				field := fe.Field()
+				switch fe.Tag() {
+				case "required":
+					out[field] = "is required"
+				case "email":
+					out[field] = "must be a valid email"
+				case "min":
+					out[field] = "must be at least " + fe.Param() + " characters"
+				default:
+					out[field] = "is invalid"
+				}
+			}
+			response.Error(c, http.StatusBadRequest, utils.InvalidRequest, out)
+			return
+		}
+
+		response.Error(c, http.StatusBadRequest, utils.InvalidRequest, err.Error())
+		return
+	}
+
+	resp, err := h.srv.CreateUser(c, req)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, utils.InternalServerErr, err.Error())
+		return
+	}
+
+	response.Success(c, http.StatusCreated, "success create new user!", resp)
+
 }

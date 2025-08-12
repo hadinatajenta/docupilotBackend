@@ -84,3 +84,11 @@ func (s *service) AssignPermissionsToRole(ctx context.Context, roleID string, pe
 
 	return *res, nil
 }
+
+func (s *service) GetAllRoles(ctx context.Context) ([]Role, error) {
+	roles, err := s.repo.GetAllRoles(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get roles: %w", err)
+	}
+	return roles, nil
+}

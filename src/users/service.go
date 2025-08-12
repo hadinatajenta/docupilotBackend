@@ -2,9 +2,14 @@ package users
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"gobackend/shared/utils"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -65,4 +70,91 @@ func (s *userService) GetByUserID(ctx context.Context, firebaseUID string) (*Use
 	return s.repo.GetByUserID(ctx, firebaseUID)
 }
 
-// nanti implementasi UpdateProfile di sini
+func (s *userService) AssignRolesToUser(ctx context.Context, userId string, roleIDs []string) (assignRoleRes, error) {
+	panic("unimplemented")
+}
+func (s *userService) GetUsers(ctx context.Context) ([]GetUsers, error) {
+	users, err := s.repo.GetUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func (s *userService) CreateUser(ctx context.Context, req CreateUserRequest) (CreateUserResponse, error) {
+	if len(req.Roles) == 0 {
+		return CreateUserResponse{}, errors.New("roles cannot be empty")
+	}
+
+	hashedPw, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return CreateUserResponse{}, err
+	}
+
+	fmt.Println("checking email ...")
+	emailExist, err := s.repo.CheckEmailExist(ctx, req.Email)
+	if err != nil {
+		fmt.Printf("there is something wrong : %f ...", err)
+		return CreateUserResponse{}, err
+	}
+	if emailExist != nil {
+		return CreateUserResponse{}, fmt.Errorf("email has already used")
+	}
+
+	fmt.Println("ok,email can be used !")
+	fmt.Println("starting mapping request ...")
+
+	fid, err := utils.RandID(8)
+	if err != nil {
+		return CreateUserResponse{}, err
+	}
+
+	roles := normalizeRoles(req.Roles)
+	u := &User{
+		ID:          uuid.NewString(),
+		Email:       req.Email,
+		Roles:       roles,
+		FirebaseUID: fid,
+		Password:    string(hashedPw),
+		CreatedAt:   time.Now(),
+	}
+
+	fmt.Println("mapping clear, inserting data to db ...")
+
+	if err := s.repo.CreateUser(ctx, u); err != nil {
+		fmt.Println("failed to insert data , rollback.")
+		return CreateUserResponse{}, err
+	}
+
+	fmt.Println("data inserted ! returning response to users ")
+	return CreateUserResponse{
+		ID:        u.ID,
+		Email:     u.Email,
+		Roles:     req.Roles,
+		CreatedAt: u.CreatedAt.Format(time.RFC3339),
+	}, nil
+}
+
+func normalizeRoles(in []string) []string {
+	out := make([]string, 0, len(in))
+	for _, r := range in {
+		for _, p := range strings.Split(r, ",") {
+			v := strings.TrimSpace(p)
+			if v != "" {
+				out = append(out, v)
+			}
+		}
+	}
+	seen := map[string]struct{}{}
+	res := make([]string, 0, len(out))
+	for _, v := range out {
+		k := strings.ToLower(v)
+		if _, ok := seen[k]; ok {
+			continue
+		}
+		seen[k] = struct{}{}
+		res = append(res, v)
+	}
+	return res
+}

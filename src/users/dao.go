@@ -1,6 +1,10 @@
 package users
 
-import "time"
+import (
+	"time"
+
+	"github.com/lib/pq"
+)
 
 type User struct {
 	ID          string `gorm:"primaryKey"`
@@ -10,8 +14,8 @@ type User struct {
 	AvatarURL   string
 	CreatedAt   time.Time
 	LastLogin   time.Time
-	Role        string `json:"roles" gorm:"column:roles"`
-	Password    string `json:"-"`
+	Roles       pq.StringArray `json:"roles" gorm:"type:text[]"`
+	Password    string         `json:"-"`
 }
 
 func (User) TableName() string {

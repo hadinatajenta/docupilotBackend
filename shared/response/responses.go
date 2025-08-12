@@ -17,12 +17,23 @@ type ValidationError struct {
 	Message string `json:"message"`
 }
 
-// === Success ===
+type APIResponse struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
+	Data    any    `json:"data,omitempty"`
+}
+
+type ErrorAPIResponse struct {
+	Status  int    `json:"status"`
+	Message string `json:"message"`
+	Errors  string `json:"errors"`
+}
+
 func Success(c *gin.Context, status int, message string, data any) {
-	c.JSON(status, gin.H{
-		"status":  status,
-		"message": message,
-		"data":    data,
+	c.JSON(status, APIResponse{
+		Status:  status,
+		Message: message,
+		Data:    data,
 	})
 }
 
